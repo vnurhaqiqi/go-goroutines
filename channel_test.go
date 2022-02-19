@@ -2,6 +2,7 @@ package gogoroutines
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 	"time"
 )
@@ -45,7 +46,7 @@ func OnlyIn(channel chan<- string) {
 	channel <- "Viqi Nurhaqiqi"
 }
 
-func OnlyOut(channel <- chan string) {
+func OnlyOut(channel <-chan string) {
 	data := <-channel
 	fmt.Println(data)
 }
@@ -58,4 +59,34 @@ func TestChannelInOut(t *testing.T) {
 	go OnlyOut(channel)
 
 	time.Sleep(5 * time.Second)
+}
+
+func TestBufferChannel(t *testing.T) {
+	channel := make(chan string, 3)
+	defer close(channel)
+
+	channel <- "Viqi"
+	channel <- "Nurhaqiqi"
+
+	fmt.Println(<-channel)
+	fmt.Println(<-channel)
+
+	fmt.Println("Selesai")
+}
+
+func TestRangeChannel(t *testing.T) {
+	channel := make(chan string)
+
+	go func() {
+		for i := 0; i < 10; i++ {
+			channel <- "Loop " + strconv.Itoa(i)
+		}
+		close(channel)
+	}()
+
+	for data := range channel {
+		fmt.Println("Received data, ", data)
+	}
+
+	fmt.Println("END")
 }
